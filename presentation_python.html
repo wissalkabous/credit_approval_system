@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Python Presentation — Credit Approval System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#f0f2f8;color:#1a1a2e;padding:40px 20px;font-size:14px;line-height:1.65}
+  .page{max-width:880px;margin:0 auto}
+
+  /* COVER */
+  .cover{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);border-radius:22px;color:#fff;padding:65px 55px 55px;margin-bottom:28px;text-align:center;position:relative;overflow:hidden}
+  .cover::before{content:'';position:absolute;top:-90px;right:-70px;width:360px;height:360px;background:rgba(255,255,255,.04);border-radius:50%}
+  .cover::after{content:'';position:absolute;bottom:-110px;left:-50px;width:240px;height:240px;background:rgba(255,255,255,.03);border-radius:50%}
+  .cover-eyebrow{display:inline-block;background:rgba(255,255,255,.14);padding:5px 18px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;position:relative}
+  .cover h1{font-size:38px;font-weight:900;margin-bottom:10px;position:relative;letter-spacing:-.5px}
+  .cover h2{font-size:16px;font-weight:300;opacity:.75;position:relative;max-width:600px;margin:0 auto}
+  .cover-pills{display:flex;justify-content:center;gap:9px;margin-top:26px;flex-wrap:wrap;position:relative}
+  .pill{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.2);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.4px}
+  .cover-meta{margin-top:24px;display:flex;justify-content:center;gap:28px;font-size:12px;opacity:.6;position:relative;flex-wrap:wrap}
+
+  /* SECTION */
+  .section{background:#fff;border-radius:18px;padding:34px 38px;margin-bottom:22px;box-shadow:0 3px 18px rgba(15,12,41,.09)}
+  .section-accent {border-left:5px solid #302b63}
+  .section-green  {border-left:5px solid #27ae60}
+  .section-orange {border-left:5px solid #e67e22}
+  .section-red    {border-left:5px solid #e74c3c}
+  .section-blue   {border-left:5px solid #2980b9}
+  .section-teal   {border-left:5px solid #16a085}
+  .section-purple {border-left:5px solid #8e44ad}
+  .section-dark   {border-left:5px solid #1a1a2e}
+
+  .section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;opacity:.45}
+  .section-title{font-size:22px;font-weight:800;color:#1a1a2e;margin-bottom:16px;letter-spacing:-.3px}
+  .section-subtitle{font-size:15px;font-weight:700;color:#1a1a2e;margin:22px 0 10px;padding-top:12px;border-top:1px solid #f0edf9}
+  p{margin-bottom:10px;color:#4a4a6a;font-size:14px}
+
+  /* CODE */
+  pre{background:#16213e;color:#cdd6f4;border-radius:12px;padding:20px 22px;font-family:'Fira Code',monospace;font-size:12.5px;line-height:1.8;overflow-x:auto;margin:14px 0}
+  .kw{color:#cba6f7}.fn{color:#89b4fa}.cm{color:#585b70}.st{color:#a6e3a1}.nb{color:#fab387}.cl{color:#f9e2af}.dc{color:#89dceb}
+  code{font-family:'Fira Code',monospace;font-size:12px;background:#f0ebff;color:#6b21a8;padding:2px 7px;border-radius:5px}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+  th{background:#f0f2f8;color:#302b63;font-size:10px;text-transform:uppercase;letter-spacing:.8px;padding:10px 14px;text-align:left;font-weight:700}
+  td{padding:10px 14px;border-bottom:1px solid #f2f0f9;color:#333;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+
+  /* BOXES */
+  .problem-box{background:#fff8f0;border:1.5px solid #f5c07a;border-radius:12px;padding:16px 20px;margin-bottom:12px}
+  .problem-box-title{font-size:11px;font-weight:800;color:#b7770d;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+  .problem-box-body{font-size:13px;color:#7a5700}
+  .solution-box{background:#f0fdf6;border:1.5px solid #86efac;border-radius:12px;padding:16px 20px;margin-bottom:12px}
+  .solution-box-title{font-size:11px;font-weight:800;color:#166534;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+  .solution-box-body{font-size:13px;color:#14532d}
+  .hl       {background:#fffbeb;border:1.5px solid #fcd34d;border-radius:10px;padding:13px 17px;margin:12px 0;font-size:13px;color:#78350f}
+  .hl-blue  {background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:13px 17px;margin:12px 0;font-size:13px;color:#1e3a8a}
+  .hl-green {background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:13px 17px;margin:12px 0;font-size:13px;color:#14532d}
+  .hl-purple{background:#faf5ff;border:1.5px solid #d8b4fe;border-radius:10px;padding:13px 17px;margin:12px 0;font-size:13px;color:#581c87}
+
+  /* CARDS */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:14px 0}
+  .card{border-radius:12px;padding:18px;border:1.5px solid #e8e3f5}
+  .card-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+  .card-body{font-size:13px;color:#555;line-height:1.6}
+
+  /* BADGES */
+  .badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;margin:2px}
+  .b-blue  {background:#dbeafe;color:#1d4ed8}
+  .b-purple{background:#f3e8ff;color:#6b21a8}
+  .b-green {background:#dcfce7;color:#166534}
+  .b-orange{background:#ffedd5;color:#9a3412}
+  .b-teal  {background:#ccfbf1;color:#0f766e}
+
+  /* FLOW STEPS */
+  .flow{display:flex;flex-direction:column;gap:0;margin:14px 0}
+  .flow-step{display:flex;align-items:flex-start;gap:16px;padding:13px 0 13px 18px;border-left:3px solid #e0d9f7;margin-left:22px;position:relative}
+  .flow-step::before{content:'';position:absolute;left:-9px;top:19px;width:15px;height:15px;border-radius:50%;background:linear-gradient(135deg,#302b63,#8e44ad)}
+  .flow-step:last-child{border-left:3px solid transparent}
+  .flow-tag{font-family:'Fira Code',monospace;font-size:11px;color:#fff;background:linear-gradient(135deg,#302b63,#8e44ad);padding:4px 12px;border-radius:7px;white-space:nowrap;font-weight:600;min-width:115px;text-align:center;flex-shrink:0}
+  .flow-desc{font-size:13px;color:#555;padding-top:3px;line-height:1.6}
+
+  /* DEMO SLIDE */
+  .demo-slide{background:linear-gradient(135deg,#0f0c29 0%,#302b63 100%);border-radius:16px;padding:50px 40px;text-align:center;color:#fff;position:relative;overflow:hidden;margin:14px 0}
+  .demo-slide::before{content:'';position:absolute;top:-60px;right:-40px;width:280px;height:280px;background:rgba(255,255,255,.04);border-radius:50%}
+  .demo-slide-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;opacity:.5;margin-bottom:14px}
+  .demo-slide-title{font-size:28px;font-weight:900;margin-bottom:12px;position:relative}
+  .demo-slide-sub{font-size:14px;opacity:.7;margin-bottom:24px;position:relative}
+  .demo-steps{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;position:relative}
+  .demo-step-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:8px 18px;border-radius:10px;font-size:12px;font-weight:600}
+
+  /* ARCH DIAGRAM */
+  .arch{background:#16213e;border-radius:12px;padding:22px 24px;font-family:'Fira Code',monospace;font-size:12.5px;color:#cdd6f4;line-height:2;margin:14px 0}
+  .ag{color:#a6e3a1}.ay{color:#f9e2af}.ab{color:#89b4fa}.ap{color:#cba6f7}.at{color:#89dceb}
+
+  /* CONCLUSION */
+  .concl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+  .concl-card{border-radius:12px;padding:16px 18px;border-left:4px solid}
+  .concl-card h4{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+  .concl-card p{font-size:12px;color:#555;margin:0}
+
+  /* FOOTER */
+  .footer{text-align:center;color:#aaa;font-size:11px;padding:22px 0 10px;letter-spacing:.5px}
+
+  @media print{body{background:#fff;padding:0}.section{box-shadow:none;break-inside:avoid}.cover{break-after:page;border-radius:0}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-eyebrow">Advanced Python · Software Architecture</div>
+  <h1>Credit Approval System</h1>
+  <h2>Object-Oriented Design, Design Patterns and REST API for an intelligent banking system</h2>
+  <div class="cover-pills">
+    <span class="pill">OOP</span>
+    <span class="pill">Abstract Classes</span>
+    <span class="pill">DIP</span>
+    <span class="pill">Singleton Pattern</span>
+    <span class="pill">Decorators</span>
+    <span class="pill">FastAPI</span>
+    <span class="pill">Pydantic</span>
+    <span class="pill">Async / Await</span>
+    <span class="pill">IoC Container</span>
+  </div>
+  <div class="cover-meta">
+    <span>Language: Python 3.11</span>
+    <span>Framework: FastAPI</span>
+    <span>ML: scikit-learn</span>
+    <span>Market: Morocco (MAD)</span>
+  </div>
+</div>
+
+
+<!-- 01 INTRODUCTION -->
+<div class="section section-accent">
+  <div class="section-label">01</div>
+  <div class="section-title">Introduction</div>
+
+  <p>This project is a <strong>bank credit approval system</strong> built in Python. It goes beyond simply running an ML model — it applies <strong>software engineering best practices</strong> to produce maintainable, extensible, and testable code.</p>
+
+  <div class="grid-3">
+    <div class="card" style="background:#f8f6ff;border-color:#d8b4fe">
+      <div class="card-title" style="color:#6b21a8">Main Objective</div>
+      <div class="card-body">Predict whether a bank customer will be approved or rejected for a loan, based on 12 financial features.</div>
+    </div>
+    <div class="card" style="background:#f0fdf4;border-color:#86efac">
+      <div class="card-title" style="color:#166534">Technical Objective</div>
+      <div class="card-body">Apply OOP, DIP, Design Patterns, Async programming, and expose everything via a modern REST API with FastAPI.</div>
+    </div>
+    <div class="card" style="background:#eff6ff;border-color:#93c5fd">
+      <div class="card-title" style="color:#1d4ed8">Result</div>
+      <div class="card-body">Complete web application: HTML form → ML prediction → JSON response + visual interface with animated gauge.</div>
+    </div>
+  </div>
+
+  <div class="hl-blue">
+    <strong>Project philosophy:</strong> every component depends on an <strong>abstract interface</strong>, never on a concrete implementation. Changing the ML algorithm, the logging system, or the storage layer requires no changes to other modules.
+  </div>
+</div>
+
+
+<!-- 02 GENERAL CONTEXT -->
+<div class="section section-blue">
+  <div class="section-label">02</div>
+  <div class="section-title">General Context</div>
+
+  <p>The project is structured into <strong>3 independent layers</strong> that communicate only through abstract interfaces.</p>
+
+  <div class="arch">
+<span class="ap">credit_approval_system/</span><br>
+<span class="ab">├── api/</span><br>
+<span class="ab">│   ├── main.py</span>        <span class="at">← FastAPI: REST routes + HTML web interface</span><br>
+<span class="ab">│   └── schemas.py</span>     <span class="at">← Pydantic V2: input/output validation</span><br>
+<span class="ab">├── src/</span><br>
+<span class="ab">│   ├── interfaces.py</span>   <span class="at">← ABC: IModel, IDataProcessor, ILogger ...</span><br>
+<span class="ab">│   ├── model.py</span>        <span class="at">← CreditModel   implements IModel</span><br>
+<span class="ab">│   ├── data_loader.py</span>  <span class="at">← DataProcessor implements IDataProcessor</span><br>
+<span class="ab">│   ├── predictor.py</span>    <span class="at">← CreditPredictor implements IPredictor</span><br>
+<span class="ab">│   ├── container.py</span>    <span class="at">← IoC Container  (Singleton Pattern)</span><br>
+<span class="ab">│   ├── repository.py</span>   <span class="at">← ModelRepository implements IRepository</span><br>
+<span class="ab">│   ├── logger.py</span>       <span class="at">← ConsoleLogger, FileLogger, HybridLogger</span><br>
+<span class="ab">│   ├── decorators.py</span>   <span class="at">← @timing, @log_execution, @validate_input</span><br>
+<span class="ab">│   └── functional.py</span>   <span class="at">← pipe(), map_transform(), filter_by()</span><br>
+<span class="ab">├── models/</span>             <span class="at">← credit_model.pkl  (trained model)</span><br>
+<span class="ab">└── train.py</span>            <span class="at">← ML model training script</span>
+  </div>
+
+  <table>
+    <thead><tr><th>Python Concept</th><th>Key File</th><th>Role in the Project</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge b-purple">ABC</span> Abstract Classes</td><td><code>src/interfaces.py</code></td><td>Define mandatory contracts</td></tr>
+      <tr><td><span class="badge b-blue">DIP</span> Dependency Inversion</td><td>All <code>src/*.py</code></td><td>Decoupling via interfaces</td></tr>
+      <tr><td><span class="badge b-teal">Singleton</span> Design Pattern</td><td><code>src/container.py</code></td><td>Single instance of the IoC container</td></tr>
+      <tr><td><span class="badge b-orange">Decorator</span> Python</td><td><code>src/decorators.py</code></td><td>@timing, @log_execution</td></tr>
+      <tr><td><span class="badge b-green">Async / Await</span></td><td><code>api/main.py</code></td><td>Non-blocking routes + BackgroundTasks</td></tr>
+      <tr><td><span class="badge b-blue">FastAPI</span></td><td><code>api/main.py</code></td><td>REST API + web interface</td></tr>
+      <tr><td><span class="badge b-purple">Pydantic V2</span></td><td><code>api/schemas.py</code></td><td>Automatic data validation</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- 03 PROBLEM STATEMENT -->
+<div class="section section-red">
+  <div class="section-label">03</div>
+  <div class="section-title">Problem Statement</div>
+
+  <p>Building an ML system without a rigorous architecture creates several serious issues in production:</p>
+
+  <div class="problem-box">
+    <div class="problem-box-title">Problem 1 — Tight Coupling</div>
+    <div class="problem-box-body">If <code>train.py</code> directly instantiates <code>RandomForestClassifier()</code>, changing the algorithm forces modifications in <strong>every file</strong> that uses it. The code becomes brittle.</div>
+  </div>
+
+  <div class="problem-box">
+    <div class="problem-box-title">Problem 2 — Untestable Code</div>
+    <div class="problem-box-body">Without interfaces, it is impossible to replace the real ML model with a <strong>mock</strong> in unit tests. Every test requires a full model training — slow and expensive.</div>
+  </div>
+
+  <div class="problem-box">
+    <div class="problem-box-title">Problem 3 — Code Repetition (DRY Violation)</div>
+    <div class="problem-box-body">Logging the start/end of every method, measuring execution times, validating inputs — writing this manually in every function produces hundreds of duplicated lines.</div>
+  </div>
+
+  <div class="problem-box">
+    <div class="problem-box-title">Problem 4 — No API Data Validation</div>
+    <div class="problem-box-body">Without validation, a user can send <code>age: "thirty"</code> or <code>credit_score: 9999</code> to the API → a cryptic error inside the ML model with no clear message.</div>
+  </div>
+
+  <div class="problem-box">
+    <div class="problem-box-title">Problem 5 — Blocking Server</div>
+    <div class="problem-box-body">Without <code>async</code>, each request blocks the server until fully completed. If 100 clients send requests simultaneously, 99 wait in a queue.</div>
+  </div>
+
+  <pre><code><span class="cm"># Code WITHOUT proper architecture (to avoid)</span>
+<span class="kw">def</span> <span class="fn">predict</span>(data):
+    model = <span class="fn">RandomForestClassifier</span>()   <span class="cm"># direct dependency, not testable</span>
+    model.<span class="fn">fit</span>(X_train, y_train)          <span class="cm"># re-trains on every call!</span>
+    <span class="fn">print</span>(<span class="st">"Starting predict..."</span>)         <span class="cm"># manual log repeated everywhere</span>
+    <span class="kw">return</span> model.<span class="fn">predict</span>(data)           <span class="cm"># no validation, no error handling</span></code></pre>
+</div>
+
+
+<!-- 04 SOLUTION -->
+<div class="section section-green">
+  <div class="section-label">04</div>
+  <div class="section-title">Solution</div>
+  <p>The project applies <strong>7 complementary methods</strong> to address each identified problem.</p>
+
+  <!-- 4.1 ABC -->
+  <div class="section-subtitle">4.1 — Abstract Classes (ABC)</div>
+  <p>An abstract class defines a <strong>mandatory contract</strong> — what a class must do, without dictating how. Any subclass that forgets to implement a method raises a <code>TypeError</code> at instantiation.</p>
+
+  <pre><code><span class="cm"># src/interfaces.py — 5 abstract interfaces</span>
+<span class="kw">from</span> abc <span class="kw">import</span> ABC, abstractmethod
+
+<span class="kw">class</span> <span class="cl">IModel</span>(ABC):
+    <span class="dc">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">train</span>(self, X_train, y_train) -> <span class="cl">None</span>: <span class="kw">pass</span>
+    <span class="dc">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">predict</span>(self, X) -> np.<span class="cl">ndarray</span>: <span class="kw">pass</span>
+    <span class="dc">@abstractmethod</span>
+    <span class="kw">def</span> <span class="fn">save</span>(self, filepath: <span class="cl">str</span>) -> <span class="cl">None</span>: <span class="kw">pass</span>
+
+<span class="cm"># src/model.py — concrete implementation</span>
+<span class="kw">class</span> <span class="cl">CreditModel</span>(<span class="cl">IModel</span>):        <span class="cm"># inherits from IModel</span>
+    <span class="kw">def</span> <span class="fn">train</span>(self, X_train, y_train):
+        self.model.<span class="fn">fit</span>(X_train, y_train)   <span class="cm"># real implementation</span>
+
+<span class="cm"># Missing a method? Python raises: TypeError: Can't instantiate abstract class</span></code></pre>
+
+  <table>
+    <thead><tr><th>Interface</th><th>Implementation</th><th>Abstract Methods</th></tr></thead>
+    <tbody>
+      <tr><td><code>IModel</code></td><td><code>CreditModel</code></td><td>train, evaluate, predict, predict_proba, save, load</td></tr>
+      <tr><td><code>IDataProcessor</code></td><td><code>DataProcessor</code></td><td>load, clean, encode, prepare, get_feature_names</td></tr>
+      <tr><td><code>IPredictor</code></td><td><code>CreditPredictor</code></td><td>predict_single, predict_batch, format_result</td></tr>
+      <tr><td><code>ILogger</code></td><td><code>ConsoleLogger, HybridLogger</code></td><td>info, error, warning</td></tr>
+      <tr><td><code>IRepository</code></td><td><code>ModelRepository</code></td><td>save_model, load_model, save_metadata</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 4.2 DIP -->
+  <div class="section-subtitle">4.2 — Dependency Inversion Principle (DIP)</div>
+  <p>The <strong>D</strong> in SOLID: high-level modules must not depend on low-level modules — both must depend on <strong>abstractions</strong>.</p>
+
+  <div class="grid-2">
+    <div class="problem-box">
+      <div class="problem-box-title">Without DIP</div>
+      <div class="problem-box-body"><code>CreditModel</code> creates <code>ConsoleLogger()</code> directly → impossible to change the logger without modifying <code>CreditModel</code>.</div>
+    </div>
+    <div class="solution-box">
+      <div class="solution-box-title">With DIP</div>
+      <div class="solution-box-body"><code>CreditModel</code> receives an <code>ILogger</code> as parameter → inject any logger without touching the class.</div>
+    </div>
+  </div>
+
+  <pre><code><span class="cm"># src/model.py — DIP: depends on interfaces, not concrete classes</span>
+<span class="kw">class</span> <span class="cl">CreditModel</span>(<span class="cl">IModel</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self,
+                 logger:     <span class="cl">ILogger</span>     = <span class="cl">None</span>,   <span class="cm"># interface, not ConsoleLogger</span>
+                 repository: <span class="cl">IRepository</span> = <span class="cl">None</span>):  <span class="cm"># interface, not ModelRepository</span>
+        self.logger     = logger     <span class="kw">or</span> <span class="fn">ConsoleLogger</span>()
+        self.repository = repository <span class="kw">or</span> <span class="fn">ModelRepository</span>()</code></pre>
+
+  <div class="hl-green">
+    <strong>Test benefit:</strong> In unit tests, inject a <code>MockLogger</code> that collects messages instead of printing them — no changes needed in production code.
+  </div>
+
+  <!-- 4.3 Singleton -->
+  <div class="section-subtitle">4.3 — Design Pattern: Singleton</div>
+  <p>The <strong>Singleton</strong> ensures a class has only <strong>one instance</strong> throughout the entire application lifetime, with a global access point. Applied to the <code>DIContainer</code>.</p>
+
+  <pre><code><span class="cm"># src/container.py — Singleton Pattern via __new__</span>
+<span class="kw">class</span> <span class="cl">DIContainer</span>:
+    _instance = <span class="cl">None</span>   <span class="cm"># class variable — holds the unique instance</span>
+
+    <span class="kw">def</span> <span class="fn">__new__</span>(cls):
+        <span class="st">"""Singleton: always returns the same instance."""</span>
+        <span class="kw">if</span> cls._instance <span class="kw">is None</span>:
+            cls._instance = <span class="fn">super</span>().__new__(cls)   <span class="cm"># created only once</span>
+        <span class="kw">return</span> cls._instance                        <span class="cm"># same object every time</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        <span class="kw">if</span> <span class="fn">hasattr</span>(self, <span class="st">'_initialized'</span>): <span class="kw">return</span>  <span class="cm"># prevent re-initialization</span>
+        self._services = {}
+        self.<span class="fn">_register_defaults</span>()
+        self._initialized = <span class="cl">True</span>
+
+<span class="cm"># Proof of uniqueness</span>
+c1 = <span class="fn">DIContainer</span>()
+c2 = <span class="fn">DIContainer</span>()
+<span class="fn">print</span>(c1 <span class="kw">is</span> c2)          <span class="cm"># → True  (same object in memory)</span>
+<span class="fn">print</span>(<span class="fn">id</span>(c1) == <span class="fn">id</span>(c2)) <span class="cm"># → True  (same memory address)</span></code></pre>
+
+  <div class="hl-purple">
+    <strong>Why Singleton here?</strong> The <code>DIContainer</code> registers all services (logger, repository). Without Singleton, every module would create its own container with a different logger → inconsistency. The Singleton guarantees one shared logger across the entire application.
+  </div>
+
+  <!-- 4.4 IoC Container -->
+  <div class="section-subtitle">4.4 — IoC Container (Inversion of Control)</div>
+  <p>The <strong>DIContainer</strong> is a centralized factory. It creates objects and automatically injects their dependencies — no need to manually wire each object with its parameters.</p>
+
+  <pre><code><span class="cm"># src/container.py — built-in Factory Method</span>
+<span class="kw">def</span> <span class="fn">create_model</span>(self, model_type=<span class="st">"random_forest"</span>) -> <span class="cl">IModel</span>:
+    logger     = self.<span class="fn">get_service</span>(<span class="st">'logger'</span>)
+    repository = self.<span class="fn">get_service</span>(<span class="st">'repository'</span>)
+    <span class="kw">return</span> <span class="fn">CreditModel</span>(model_type, logger, repository)  <span class="cm"># auto injection</span>
+
+<span class="cm"># train.py — clean usage</span>
+container = <span class="fn">initialize_container</span>()
+model     = container.<span class="fn">create_model</span>(model_type=<span class="st">"random_forest"</span>)
+processor = container.<span class="fn">create_data_processor</span>(<span class="st">"data/raw/credit_data.csv"</span>)
+predictor = container.<span class="fn">create_predictor</span>(model, processor)
+<span class="cm"># ConsoleLogger and ModelRepository are injected automatically</span></code></pre>
+
+  <!-- 4.5 Decorators -->
+  <div class="section-subtitle">4.5 — Python Decorators</div>
+  <p>A decorator is a <strong>function that wraps another function</strong> to add behavior without modifying its code (Open/Closed Principle).</p>
+
+  <pre><code><span class="cm"># src/decorators.py</span>
+<span class="kw">def</span> <span class="fn">timing</span>(func):
+    <span class="dc">@functools.wraps</span>(func)
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        start  = time.<span class="fn">time</span>()
+        result = <span class="fn">func</span>(*args, **kwargs)
+        <span class="fn">print</span>(<span class="st">f"[TIME] {func.__name__} : {time.time()-start:.3f}s"</span>)
+        <span class="kw">return</span> result
+    <span class="kw">return</span> wrapper
+
+<span class="cm"># src/model.py — applying decorators</span>
+<span class="kw">def</span> <span class="fn">train</span>(self, X_train, y_train):
+    <span class="dc">@log_execution</span>   <span class="cm"># prints [RUN] _train  /  [OK] _train</span>
+    <span class="dc">@timing</span>          <span class="cm"># prints [TIME] _train : 1.24s</span>
+    <span class="kw">def</span> <span class="fn">_train</span>():
+        self.model.<span class="fn">fit</span>(X_train, y_train)
+    <span class="kw">return</span> <span class="fn">_train</span>()</code></pre>
+
+  <table>
+    <thead><tr><th>Decorator</th><th>Role</th><th>Used in</th></tr></thead>
+    <tbody>
+      <tr><td><code>@timing</code></td><td>Measures execution time</td><td>train(), prepare(), evaluate()</td></tr>
+      <tr><td><code>@log_execution</code></td><td>Logs function start and end</td><td>load(), clean(), encode()</td></tr>
+      <tr><td><code>@validate_input</code></td><td>Validates data before prediction</td><td>predict_single()</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 4.6 FastAPI + Pydantic -->
+  <div class="section-subtitle">4.6 — FastAPI + Pydantic V2</div>
+  <p><strong>FastAPI</strong> exposes the ML model via a REST API with automatic documentation. <strong>Pydantic</strong> validates every incoming field before it reaches the model.</p>
+
+  <pre><code><span class="cm"># api/schemas.py — automatic Pydantic V2 validation</span>
+<span class="kw">class</span> <span class="cl">PredictionInput</span>(<span class="cl">BaseModel</span>):
+    age:           <span class="cl">int</span>   = <span class="fn">Field</span>(..., ge=<span class="nb">18</span>,  le=<span class="nb">75</span>)    <span class="cm"># 18 &le; age &le; 75</span>
+    credit_score:  <span class="cl">int</span>   = <span class="fn">Field</span>(..., ge=<span class="nb">300</span>, le=<span class="nb">850</span>) <span class="cm"># 300–850</span>
+    monthly_income:<span class="cl">float</span> = <span class="fn">Field</span>(..., gt=<span class="nb">0</span>)             <span class="cm"># &gt; 0 MAD</span>
+    <span class="cm"># ... 9 more fields with their constraints</span>
+    <span class="cm"># Wrong type or out of range → HTTP 422 automatically, model never called</span>
+
+<span class="cm"># api/main.py — modern lifespan pattern</span>
+<span class="dc">@asynccontextmanager</span>
+<span class="kw">async def</span> <span class="fn">lifespan</span>(app):
+    <span class="fn">init_predictor</span>()   <span class="cm"># load .pkl model at startup</span>
+    <span class="kw">yield</span>              <span class="cm"># app runs here</span>
+
+app = <span class="fn">FastAPI</span>(title=<span class="st">"Credit Approval System"</span>, lifespan=lifespan)</code></pre>
+
+  <!-- 4.7 Async -->
+  <div class="section-subtitle">4.7 — Asynchronous Programming (async / await)</div>
+  <p>FastAPI is built on <code>asyncio</code>. Routes declared as <code>async def</code> do not block the server. <strong>BackgroundTasks</strong> run operations <em>after</em> the response has been sent to the client.</p>
+
+  <pre><code><span class="cm"># api/main.py — Async Background Task</span>
+<span class="kw">async def</span> <span class="fn">log_prediction_async</span>(statut: <span class="cl">str</span>, confiance: <span class="cl">str</span>, risque: <span class="cl">str</span>):
+    <span class="st">"""Background log — response is already sent to the client."""</span>
+    <span class="kw">await</span> asyncio.<span class="fn">sleep</span>(<span class="nb">0</span>)   <span class="cm"># yield to the event loop</span>
+    <span class="fn">print</span>(<span class="st">f"[ASYNC LOG] {statut} | {confiance} | {risque}"</span>)
+
+<span class="dc">@app.post</span>(<span class="st">"/api/predict"</span>)
+<span class="kw">async def</span> <span class="fn">predict</span>(data: <span class="cl">PredictionInput</span>, background_tasks: <span class="cl">BackgroundTasks</span>):
+    <span class="cm"># ... ML prediction ...</span>
+    background_tasks.<span class="fn">add_task</span>(log_prediction_async, statut, confiance, risque)
+    <span class="kw">return</span> result   <span class="cm"># &larr; response sent immediately</span>
+                    <span class="cm"># log_prediction_async runs after</span></code></pre>
+
+  <div class="grid-2">
+    <div class="problem-box">
+      <div class="problem-box-title">Synchronous Flow</div>
+      <div class="problem-box-body">Prediction → Log → <strong>Response</strong><br>Client waits until everything is done.</div>
+    </div>
+    <div class="solution-box">
+      <div class="solution-box-title">Asynchronous Flow</div>
+      <div class="solution-box-body">Prediction → <strong>Immediate Response</strong><br>Log runs in background, after the client receives the answer.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 05 DEMO -->
+<div class="section section-dark">
+  <div class="section-label">05</div>
+  <div class="section-title">Demo</div>
+
+  <div class="demo-slide">
+    <div class="demo-slide-label">Live Demonstration</div>
+    <div class="demo-slide-title">Full System Simulation</div>
+    <div class="demo-slide-sub">End-to-end flow: client form → validation → ML prediction → async response</div>
+    <div class="demo-steps">
+      <div class="demo-step-pill">1. Launch FastAPI</div>
+      <div class="demo-step-pill">2. Fill the form</div>
+      <div class="demo-step-pill">3. Pydantic Validation</div>
+      <div class="demo-step-pill">4. Random Forest Prediction</div>
+      <div class="demo-step-pill">5. Async Background Log</div>
+      <div class="demo-step-pill">6. Result + Animated Gauge</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-tag">Browser</div>
+      <div class="flow-desc">The client fills in the HTML form (12 MAD fields) and clicks "Analyze". JavaScript sends a <strong>POST /api/predict</strong> as JSON.</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-tag">Pydantic V2</div>
+      <div class="flow-desc"><code>PredictionInput</code> automatically validates types and ranges. If <code>age=200</code> → <strong>HTTP 422</strong> immediately, the ML model is never called.</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-tag">DIContainer</div>
+      <div class="flow-desc">Singleton instance of the IoC container — provides the same <code>predictor</code> loaded at startup (Random Forest model + StandardScaler).</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-tag">CreditPredictor</div>
+      <div class="flow-desc">Applies <code>scaler.transform()</code> (WITHOUT re-fitting) then calls <code>model.predict()</code> and <code>model.predict_proba()</code> through the <code>IModel</code> interface.</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-tag">Async Log</div>
+      <div class="flow-desc"><code>BackgroundTasks</code> fires <code>log_prediction_async()</code> <strong>after</strong> the response is sent — the client does not wait for the log to complete.</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-tag">Response</div>
+      <div class="flow-desc">JSON returned: <code>{status, prediction, confidence, risk}</code>. The interface displays an animated SVG gauge and DTI/LTI metrics.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 06 CONCLUSION -->
+<div class="section section-accent">
+  <div class="section-label">06</div>
+  <div class="section-title">Conclusion</div>
+
+  <p>This project demonstrates that a production ML system goes far beyond <code>model.fit()</code> — it requires a <strong>rigorous software architecture</strong> to be maintainable, testable, and extensible.</p>
+
+  <div class="concl-grid">
+    <div class="concl-card" style="background:#faf5ff;border-color:#8e44ad">
+      <h4 style="color:#6b21a8">ABC + DIP</h4>
+      <p>5 abstract interfaces (<code>IModel</code>, <code>ILogger</code>...) enforce implementation contracts and allow replacing any component without breaking others.</p>
+    </div>
+    <div class="concl-card" style="background:#f0fdf6;border-color:#27ae60">
+      <h4 style="color:#166534">Singleton Pattern</h4>
+      <p>The <code>DIContainer</code> guarantees a single instance across the application — one shared logger, one repository, consistent configuration.</p>
+    </div>
+    <div class="concl-card" style="background:#fffbeb;border-color:#f59e0b">
+      <h4 style="color:#78350f">Decorators</h4>
+      <p><code>@timing</code> and <code>@log_execution</code> add logging and performance tracking without duplicating code — DRY and Open/Closed principles respected.</p>
+    </div>
+    <div class="concl-card" style="background:#eff6ff;border-color:#2980b9">
+      <h4 style="color:#1d4ed8">FastAPI + Async</h4>
+      <p><code>async def</code> non-blocking routes and <code>BackgroundTasks</code> allow the server to handle many simultaneous requests without waiting for each to finish.</p>
+    </div>
+  </div>
+
+  <table style="margin-top:6px">
+    <thead><tr><th>Concept</th><th>Location</th><th>Concrete Benefit</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ABC / @abstractmethod</strong></td><td><code>src/interfaces.py</code></td><td>Mandatory contracts, guaranteed extensibility</td></tr>
+      <tr><td><strong>DIP</strong></td><td><code>src/model.py</code>, <code>src/predictor.py</code></td><td>Decoupling, testability with mocks</td></tr>
+      <tr><td><strong>Singleton Pattern</strong></td><td><code>src/container.py</code></td><td>Single instance, global consistency</td></tr>
+      <tr><td><strong>IoC Container</strong></td><td><code>src/container.py</code></td><td>Automatic dependency injection</td></tr>
+      <tr><td><strong>Decorators</strong></td><td><code>src/decorators.py</code></td><td>DRY code, separation of concerns</td></tr>
+      <tr><td><strong>FastAPI + Pydantic</strong></td><td><code>api/main.py</code>, <code>api/schemas.py</code></td><td>Auto-documented API, robust validation</td></tr>
+      <tr><td><strong>Async / BackgroundTasks</strong></td><td><code>api/main.py</code></td><td>Non-blocking server, fast responses</td></tr>
+    </tbody>
+  </table>
+
+  <div class="hl-green" style="margin-top:16px">
+    <strong>Key takeaway:</strong> Replacing Random Forest with XGBoost, console logs with a file, local storage with AWS S3 — none of these changes require modifying other modules. That is the power of <strong>abstract interfaces</strong> combined with <strong>DIP</strong>.
+  </div>
+
+  <pre><code><span class="cm"># Run the project</span>
+pip install -r requirements.txt
+python -m uvicorn api.main:app --reload --host <span class="nb">0.0.0.0</span> --port <span class="nb">8000</span></code></pre>
+</div>
+
+
+<div class="footer">
+  Credit Approval System &nbsp;&middot;&nbsp; Python OOP &nbsp;&middot;&nbsp; DIP &nbsp;&middot;&nbsp; ABC &nbsp;&middot;&nbsp; Singleton &nbsp;&middot;&nbsp; Decorators &nbsp;&middot;&nbsp; FastAPI &nbsp;&middot;&nbsp; Async
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Présentation ML — Credit Approval System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+    font-family:'Inter',sans-serif;
+    background:#f4f1fb;
+    color:#1a1a2e;
+    padding:40px 20px;
+    font-size:14px;
+    line-height:1.6;
+  }
+
+  .page{
+    max-width:860px;
+    margin:0 auto;
+  }
+
+  /* ── COVER ── */
+  .cover{
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    border-radius:20px;
+    color:#fff;
+    padding:60px 50px;
+    margin-bottom:30px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .cover::before{
+    content:'';position:absolute;top:-80px;right:-60px;
+    width:340px;height:340px;background:rgba(255,255,255,.07);border-radius:50%;
+  }
+  .cover::after{
+    content:'';position:absolute;bottom:-100px;left:-40px;
+    width:220px;height:220px;background:rgba(255,255,255,.05);border-radius:50%;
+  }
+  .cover-tag{
+    display:inline-block;
+    background:rgba(255,255,255,.2);
+    padding:5px 16px;border-radius:20px;
+    font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+    margin-bottom:20px;backdrop-filter:blur(4px);
+  }
+  .cover h1{font-size:38px;font-weight:800;margin-bottom:10px;position:relative}
+  .cover h2{font-size:18px;font-weight:300;opacity:.85;position:relative}
+  .cover-meta{
+    margin-top:32px;display:flex;justify-content:center;gap:28px;
+    font-size:13px;opacity:.8;position:relative;flex-wrap:wrap;
+  }
+  .cover-meta span{display:flex;align-items:center;gap:6px}
+
+  /* ── SECTION ── */
+  .section{
+    background:#fff;
+    border-radius:16px;
+    padding:32px 36px;
+    margin-bottom:22px;
+    box-shadow:0 4px 20px rgba(102,126,234,.1);
+    border-left:4px solid #764ba2;
+  }
+  .section-title{
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;
+    color:#764ba2;margin-bottom:18px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .section-title::after{
+    content:'';flex:1;height:1px;background:#f0ebfa;
+  }
+  h3{font-size:17px;font-weight:700;color:#1a1a2e;margin-bottom:12px}
+  p{margin-bottom:10px;color:#444}
+
+  /* ── BIG QUESTION ── */
+  .big-q{
+    background:linear-gradient(135deg,#f8f4ff,#fff);
+    border:2px solid #e0d0f5;
+    border-radius:12px;
+    padding:20px 24px;
+    text-align:center;
+    font-size:18px;font-weight:700;color:#764ba2;
+    margin-bottom:16px;
+  }
+  .answer-row{
+    display:flex;gap:14px;justify-content:center;margin-top:10px;
+  }
+  .answer{
+    padding:10px 28px;border-radius:10px;
+    font-weight:700;font-size:15px;
+  }
+  .answer.yes{background:#e8f8f2;color:#1a8c5b;border:2px solid #b2dfcf}
+  .answer.no{background:#fef0ef;color:#c0392b;border:2px solid #f5c6c1}
+
+  /* ── TABLE ── */
+  table{width:100%;border-collapse:collapse;margin-bottom:10px}
+  th{
+    background:#f4f1fb;color:#764ba2;
+    font-size:10px;text-transform:uppercase;letter-spacing:.8px;
+    padding:9px 12px;text-align:left;font-weight:700;
+  }
+  td{
+    padding:9px 12px;border-bottom:1px solid #f5f0fe;
+    font-size:13px;color:#333;
+  }
+  tr:last-child td{border-bottom:none}
+  td.tag{
+    font-family:'Fira Code',monospace;
+    font-size:12px;color:#764ba2;background:#f8f4ff;
+    border-radius:4px;padding:4px 8px;
+  }
+  .target-row td{font-weight:700;color:#764ba2;background:#f8f4ff}
+
+  /* ── CODE BLOCK ── */
+  pre{
+    background:#1e1e2e;
+    color:#cdd6f4;
+    border-radius:10px;
+    padding:18px 20px;
+    font-family:'Fira Code',monospace;
+    font-size:12.5px;
+    line-height:1.7;
+    overflow-x:auto;
+    margin-bottom:14px;
+  }
+  .kw{color:#cba6f7}   /* keyword / purple */
+  .fn{color:#89b4fa}   /* function / blue */
+  .cm{color:#6c7086}   /* comment / grey */
+  .st{color:#a6e3a1}   /* string / green */
+  .nb{color:#fab387}   /* number / orange */
+
+  /* ── PIPELINE ── */
+  .pipeline{display:flex;flex-direction:column;gap:0}
+  .pipe-step{
+    display:flex;align-items:flex-start;gap:14px;
+    padding:12px 16px;
+    border-left:3px solid #e0d0f5;
+    margin-left:20px;
+    position:relative;
+  }
+  .pipe-step::before{
+    content:'';
+    position:absolute;left:-8px;top:18px;
+    width:14px;height:14px;border-radius:50%;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+  }
+  .pipe-step:last-child{border-left-color:transparent}
+  .pipe-label{
+    font-family:'Fira Code',monospace;
+    font-size:12px;color:#fff;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    padding:3px 10px;border-radius:6px;
+    white-space:nowrap;font-weight:500;min-width:100px;text-align:center;
+  }
+  .pipe-desc{font-size:13px;color:#555;padding-top:3px}
+
+  /* ── ALGO CARD ── */
+  .algo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .algo-card{
+    background:#f8f4ff;border:1px solid #e0d0f5;
+    border-radius:10px;padding:14px 16px;
+  }
+  .algo-card-title{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#999;margin-bottom:4px;font-weight:700}
+  .algo-card-val{font-size:18px;font-weight:800;color:#764ba2}
+  .algo-card-sub{font-size:11px;color:#888;margin-top:2px}
+
+  /* ── FOREST VISUAL ── */
+  .forest{
+    background:#1e1e2e;border-radius:10px;padding:20px;
+    font-family:'Fira Code',monospace;font-size:12px;color:#cdd6f4;line-height:1.9;
+  }
+  .forest .gr{color:#a6e3a1}
+  .forest .yl{color:#f9e2af}
+  .forest .bl{color:#89b4fa}
+  .forest .pu{color:#cba6f7}
+
+  /* ── METRICS ── */
+  .metrics-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .metric-card{
+    text-align:center;background:#f8f4ff;
+    border-radius:10px;padding:14px 8px;
+    border:1px solid #e0d0f5;
+  }
+  .metric-name{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#999;margin-bottom:6px;font-weight:700}
+  .metric-val{font-size:22px;font-weight:800;color:#764ba2}
+  .metric-desc{font-size:10px;color:#aaa;margin-top:4px}
+
+  /* ── INFERENCE FLOW ── */
+  .flow{display:flex;flex-direction:column;gap:4px}
+  .flow-row{
+    display:flex;align-items:center;gap:10px;padding:6px 0;
+  }
+  .flow-box{
+    background:#f4f1fb;border:1px solid #e0d0f5;
+    border-radius:8px;padding:7px 14px;
+    font-size:12px;font-weight:600;color:#764ba2;
+    white-space:nowrap;
+  }
+  .flow-arr{color:#bbb;font-size:18px}
+  .flow-note{font-size:12px;color:#888;font-style:italic}
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight{
+    background:#fff8e7;border:1px solid #f5d87a;
+    border-radius:10px;padding:14px 18px;margin:14px 0;
+    font-size:13px;color:#7a5700;
+  }
+  .highlight strong{color:#7a5700}
+
+  /* ── ARCH ── */
+  .arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .arch-box{
+    border-radius:12px;padding:18px 16px;text-align:center;
+  }
+  .arch-box.data{background:#e8f4fd;border:2px solid #a9d4f5}
+  .arch-box.model{background:#f0e6ff;border:2px solid #c9a8f5}
+  .arch-box.prod{background:#e6f9f2;border:2px solid #a0dfc2}
+  .arch-box-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+  .arch-box.data .arch-box-title{color:#2980b9}
+  .arch-box.model .arch-box-title{color:#764ba2}
+  .arch-box.prod .arch-box-title{color:#1a8c5b}
+  .arch-box-body{font-size:12px;color:#555;line-height:1.6}
+  .arch-arr{display:flex;align-items:center;justify-content:center;font-size:22px;color:#ccc}
+
+  /* ── FOOTER ── */
+  .footer{
+    text-align:center;color:#bbb;font-size:11px;
+    padding:20px 0 10px;
+    letter-spacing:.5px;
+  }
+
+  /* ── PRINT ── */
+  @media print{
+    body{background:#fff;padding:0}
+    .section{box-shadow:none;break-inside:avoid}
+    .cover{break-after:page}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-tag">Machine Learning · Classification Supervisée</div>
+  <h1>Credit Approval System</h1>
+  <h2>Présentation du modèle et du pipeline ML</h2>
+  <div class="cover-meta">
+    <span>Algorithme : Random Forest</span>
+    <span>Dataset : 1 000 clients</span>
+    <span>Features : 12</span>
+    <span>Marché : Maroc (MAD)</span>
+  </div>
+</div>
+
+<!-- 1. PROBLÈME -->
+<div class="section">
+  <div class="section-title">01 — Problème</div>
+  <h3>Classification Binaire</h3>
+  <p>Le modèle répond à une seule question :</p>
+  <div class="big-q">Ce client va-t-il rembourser son crédit ?</div>
+  <div class="answer-row">
+    <div class="answer yes">1 — APPROVED</div>
+    <div class="answer no">0 — REJECTED</div>
+  </div>
+  <p style="margin-top:14px">C'est un problème de <strong>classification supervisée</strong> : on dispose de données historiques avec la réponse connue (<code>Approval</code>), et on entraîne un modèle à apprendre le pattern pour prédire de nouveaux clients.</p>
+</div>
+
+<!-- 2. DATASET -->
+<div class="section">
+  <div class="section-title">02 — Dataset</div>
+  <h3>credit_data.csv — 1 000 lignes · 13 colonnes</h3>
+  <p style="margin-bottom:14px">65 % approuvés · 35 % rejetés — valeurs en Dirhams Marocains (MAD)</p>
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>Type</th><th>Plage</th><th>Rôle</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="tag">Age</td><td>int</td><td>18 – 75</td><td>Profil de risque par tranche d'âge</td></tr>
+      <tr><td class="tag">MonthlyIncome</td><td>float</td><td>&gt; 0 MAD</td><td>Capacité de remboursement mensuelle</td></tr>
+      <tr><td class="tag">EmploymentStatus</td><td>int</td><td>0 – 3</td><td>Salarié / Indép. / Retraité / Sans emploi</td></tr>
+      <tr><td class="tag">EmploymentDuration</td><td>int</td><td>0 – 40 ans</td><td>Stabilité du revenu</td></tr>
+      <tr><td class="tag">TotalDebt</td><td>float</td><td>≥ 0 MAD</td><td>Charges existantes cumulées</td></tr>
+      <tr><td class="tag">LoanAmount</td><td>float</td><td>&gt; 0 MAD</td><td>Montant du crédit demandé</td></tr>
+      <tr><td class="tag">LoanDuration</td><td>int</td><td>12 – 360 mois</td><td>Durée de l'engagement</td></tr>
+      <tr><td class="tag">CreditScore</td><td>int</td><td>300 – 850</td><td>Score historique bancaire</td></tr>
+      <tr><td class="tag">RepaymentHistory</td><td>int</td><td>0 – 10</td><td>Comportement de remboursement passé</td></tr>
+      <tr><td class="tag">NumLatePayments</td><td>int</td><td>0 – 20</td><td>Incidents de paiement (2 dernières années)</td></tr>
+      <tr><td class="tag">NumOpenAccounts</td><td>int</td><td>0 – 15</td><td>Nombre de crédits actifs en cours</td></tr>
+      <tr><td class="tag">AccountAgeYears</td><td>int</td><td>0 – 30 ans</td><td>Ancienneté / fidélité du client</td></tr>
+      <tr class="target-row"><td class="tag">Approval</td><td>int</td><td>0 ou 1</td><td>TARGET — ce que le modèle prédit</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 3. PIPELINE -->
+<div class="section">
+  <div class="section-title">03 — Pipeline de Données</div>
+  <h3>DataProcessor — 4 étapes</h3>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-label">load()</div>
+      <div class="pipe-desc"><strong>pd.read_csv()</strong> — Charger le fichier CSV en DataFrame pandas. Vérification de la forme et des types.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-label">clean()</div>
+      <div class="pipe-desc"><strong>Suppression doublons</strong> · <strong>fillna(mean)</strong> pour les colonnes numériques · <strong>fillna(mode)</strong> pour les colonnes catégorielles.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-label">encode()</div>
+      <div class="pipe-desc"><strong>LabelEncoder</strong> sur les colonnes object — ici toutes les features sont déjà numériques, donc étape transparente mais prête pour l'extension.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-label">prepare()</div>
+      <div class="pipe-desc">
+        <strong>Séparation X / y</strong> (features / target) →
+        <strong>train_test_split</strong> (80 % / 20 %, <code>stratify=y</code>) →
+        <strong>StandardScaler.fit_transform(X_train)</strong> puis <strong>.transform(X_test)</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight" style="margin-top:18px">
+    <strong>Pourquoi stratify=y ?</strong> Pour garantir que le split garde la même proportion approved/rejected dans le train ET le test (65%/35%). Sans ça, les métriques seraient faussées si le test avait par hasard trop d'un seul label.
+  </div>
+
+  <div class="highlight">
+    <strong>Pourquoi StandardScaler ?</strong> Random Forest n'en a pas besoin (basé sur des seuils, pas des distances). On le garde pour que le même pipeline fonctionne si on change d'algorithme (Logistic Regression, SVM…) sans modifier le code.
+  </div>
+</div>
+
+<!-- 4. ALGORITHME -->
+<div class="section">
+  <div class="section-title">04 — Algorithme</div>
+  <h3>Random Forest Classifier</h3>
+
+  <div class="algo-grid">
+    <div class="algo-card">
+      <div class="algo-card-title">Nombre d'arbres</div>
+      <div class="algo-card-val">100</div>
+      <div class="algo-card-sub">n_estimators=100</div>
+    </div>
+    <div class="algo-card">
+      <div class="algo-card-title">Profondeur max</div>
+      <div class="algo-card-val">10</div>
+      <div class="algo-card-sub">max_depth=10</div>
+    </div>
+    <div class="algo-card">
+      <div class="algo-card-title">Reproductibilité</div>
+      <div class="algo-card-val">42</div>
+      <div class="algo-card-sub">random_state=42</div>
+    </div>
+    <div class="algo-card">
+      <div class="algo-card-title">Parallélisme</div>
+      <div class="algo-card-val">-1</div>
+      <div class="algo-card-sub">n_jobs=-1 (tous les CPUs)</div>
+    </div>
+  </div>
+
+  <div class="forest">
+    <span class="cm"># 100 arbres de décision — chacun vote</span><br><br>
+    <span class="pu">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;100 Arbres de Décision</span><br>
+    <span class="bl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\</span><br>
+    <span class="gr">&nbsp;&nbsp;&nbsp;&nbsp;Arbre 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arbre 2&nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;&nbsp;Arbre 100</span><br>
+    <span class="cm">&nbsp;&nbsp;(63% data)  (63% data)       (63% data)</span><br>
+    <span class="yl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|</span><br>
+    <span class="gr">&nbsp;&nbsp;&nbsp;Vote=1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vote=0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vote=1</span><br>
+    <span class="bl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/</span><br>
+    <span class="pu">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VOTE MAJORITAIRE</span><br>
+    <span class="gr">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ APPROVED</span>
+  </div>
+
+  <p style="margin-top:14px">Chaque arbre est entraîné sur un <strong>sous-échantillon aléatoire</strong> des données et des features. Ils font des erreurs différentes, donc ensemble ils sont bien plus robustes qu'un seul arbre (technique : <strong>Bagging</strong>).</p>
+
+  <pre><code><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> <span class="fn">RandomForestClassifier</span>
+
+model = <span class="fn">RandomForestClassifier</span>(
+    n_estimators=<span class="nb">100</span>,    <span class="cm"># 100 arbres de décision</span>
+    max_depth=<span class="nb">10</span>,        <span class="cm"># profondeur max → évite l'overfitting</span>
+    random_state=<span class="nb">42</span>,    <span class="cm"># reproductibilité garantie</span>
+    n_jobs=<span class="nb">-1</span>           <span class="cm"># parallélisme : utilise tous les CPUs</span>
+)
+
+model.<span class="fn">fit</span>(X_train, y_train)</code></pre>
+</div>
+
+<!-- 5. MÉTRIQUES -->
+<div class="section">
+  <div class="section-title">05 — Métriques d'Évaluation</div>
+  <h3>5 métriques calculées sur le jeu de test (20%)</h3>
+
+  <div class="metrics-grid" style="margin-bottom:18px">
+    <div class="metric-card">
+      <div class="metric-name">Accuracy</div>
+      <div class="metric-val">~84%</div>
+      <div class="metric-desc">Prédictions correctes / total</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-name">Precision</div>
+      <div class="metric-val">~86%</div>
+      <div class="metric-desc">Vrais positifs parmi les approuvés</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-name">Recall</div>
+      <div class="metric-val">~91%</div>
+      <div class="metric-desc">Vrais positifs détectés</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-name">F1 Score</div>
+      <div class="metric-val">~88%</div>
+      <div class="metric-desc">Moyenne harmonique P + R</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-name">ROC-AUC</div>
+      <div class="metric-val">~93%</div>
+      <div class="metric-desc">Capacité à distinguer les 2 classes</div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Métrique</th><th>Formule</th><th>Pourquoi importante</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Accuracy</strong></td><td>Correctes / Total</td><td>Vue globale — insuffisante seule si classes déséquilibrées</td></tr>
+      <tr><td><strong>Precision</strong></td><td>VP / (VP + FP)</td><td>Critique pour la banque : éviter d'approuver un mauvais client</td></tr>
+      <tr><td><strong>Recall</strong></td><td>VP / (VP + FN)</td><td>Ne pas rejeter un bon client = perte de revenu</td></tr>
+      <tr><td><strong>F1 Score</strong></td><td>2×(P×R)/(P+R)</td><td>Équilibre entre precision et recall</td></tr>
+      <tr><td><strong>ROC-AUC</strong></td><td>Aire sous la courbe ROC</td><td>0.5 = aléatoire, 1.0 = parfait — indépendant du seuil</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code>y_pred       = model.<span class="fn">predict</span>(X_test)
+y_pred_proba = model.<span class="fn">predict_proba</span>(X_test)[:, <span class="nb">1</span>]  <span class="cm"># prob. classe 1</span>
+
+metrics = {
+    <span class="st">"accuracy"</span>:  <span class="fn">accuracy_score</span>(y_test, y_pred),
+    <span class="st">"precision"</span>: <span class="fn">precision_score</span>(y_test, y_pred),
+    <span class="st">"recall"</span>:    <span class="fn">recall_score</span>(y_test, y_pred),
+    <span class="st">"f1"</span>:        <span class="fn">f1_score</span>(y_test, y_pred),
+    <span class="st">"roc_auc"</span>:   <span class="fn">roc_auc_score</span>(y_test, y_pred_proba)
+}</code></pre>
+</div>
+
+<!-- 6. INFÉRENCE -->
+<div class="section">
+  <div class="section-title">06 — Inférence (Production)</div>
+  <h3>Du formulaire à la décision</h3>
+
+  <div class="flow">
+    <div class="flow-row">
+      <div class="flow-box">Client remplit le formulaire</div>
+      <div class="flow-arr">↓</div>
+    </div>
+    <div class="flow-row">
+      <div class="flow-box">dict Python (12 valeurs MAD)</div>
+      <div class="flow-note">ex: {Age:35, MonthlyIncome:5000, CreditScore:700, ...}</div>
+    </div>
+    <div class="flow-row"><div class="flow-arr">↓</div></div>
+    <div class="flow-row">
+      <div class="flow-box">pd.DataFrame([data])</div>
+      <div class="flow-note">Créer un DataFrame d'une seule ligne</div>
+    </div>
+    <div class="flow-row"><div class="flow-arr">↓</div></div>
+    <div class="flow-row">
+      <div class="flow-box">Ordonner les colonnes</div>
+      <div class="flow-note">Même ordre que lors du training (critique !)</div>
+    </div>
+    <div class="flow-row"><div class="flow-arr">↓</div></div>
+    <div class="flow-row">
+      <div class="flow-box">scaler.transform(df)</div>
+      <div class="flow-note">Le MÊME scaler fitté sur X_train — jamais re-fitté</div>
+    </div>
+    <div class="flow-row"><div class="flow-arr">↓</div></div>
+    <div class="flow-row">
+      <div class="flow-box">model.predict() + predict_proba()</div>
+      <div class="flow-note">→ prediction = 1 | probability = [0.23, 0.77]</div>
+    </div>
+    <div class="flow-row"><div class="flow-arr">↓</div></div>
+    <div class="flow-row">
+      <div class="flow-box" style="background:#e8f8f2;color:#1a8c5b;border-color:#a0dfc2">APPROVED — 77% confiance — Risque Low</div>
+    </div>
+  </div>
+
+  <div class="highlight" style="margin-top:18px">
+    <strong>Point critique — Le StandardScaler :</strong> Le scaler est <strong>fitté une seule fois</strong> sur X_train pendant le training, puis sérialisé avec le modèle. À chaque prédiction, on appelle uniquement <code>.transform()</code>. Si on le re-fittait sur les nouvelles données, les valeurs normalisées changeraient et le modèle donnerait des résultats faux.
+  </div>
+
+  <pre><code><span class="cm"># Inférence dans CreditPredictor.predict_single()</span>
+df = pd.<span class="fn">DataFrame</span>([client_data])
+df = df[feature_names]               <span class="cm"># ordonner les colonnes</span>
+df_scaled = scaler.<span class="fn">transform</span>(df)    <span class="cm"># normaliser (SANS re-fit)</span>
+
+prediction  = model.<span class="fn">predict</span>(df_scaled)[<span class="nb">0</span>]           <span class="cm"># 0 ou 1</span>
+probability = model.<span class="fn">predict_proba</span>(df_scaled)[<span class="nb">0</span>][<span class="nb">1</span>]  <span class="cm"># prob. classe 1</span></code></pre>
+</div>
+
+<!-- 7. ARCHITECTURE GLOBALE -->
+<div class="section">
+  <div class="section-title">07 — Architecture Globale</div>
+  <h3>3 phases distinctes</h3>
+
+  <div class="arch-grid" style="align-items:center">
+    <div class="arch-box data">
+      <div class="arch-box-title">DATA</div>
+      <div class="arch-box-body">
+        <strong>credit_data.csv</strong><br>
+        1 000 lignes · 12 features<br>
+        Nettoyage · Encoding<br>
+        Train/Test split 80/20<br>
+        StandardScaler<br><br>
+        <code style="font-size:11px">train.py</code>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:26px;color:#ccc">→</div>
+    <div class="arch-box model">
+      <div class="arch-box-title">MODEL</div>
+      <div class="arch-box-body">
+        <strong>Random Forest</strong><br>
+        100 arbres · depth 10<br>
+        Accuracy ~84%<br>
+        ROC-AUC ~93%<br>
+        Sauvegardé en <code style="font-size:11px">.pkl</code><br><br>
+        <code style="font-size:11px">models/credit_model.pkl</code>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:26px;color:#ccc">→</div>
+    <div class="arch-box prod">
+      <div class="arch-box-title">PRODUCTION</div>
+      <div class="arch-box-body">
+        <strong>FastAPI REST</strong><br>
+        Interface Web HTML<br>
+        POST /api/predict<br>
+        client_data → 0/1 + proba<br>
+        Gauge animée en temps réel<br><br>
+        <code style="font-size:11px">api/main.py</code>
+      </div>
+    </div>
+  </div>
+
+  <pre style="margin-top:18px"><code><span class="cm"># Commandes pour lancer le projet</span>
+
+<span class="cm"># 1. Entraîner le modèle</span>
+python train.py
+
+<span class="cm"># 2. Lancer l'API + interface web</span>
+python -m uvicorn api.main:app --reload --host <span class="nb">0.0.0.0</span> --port <span class="nb">8000</span>
+
+<span class="cm"># 3. Ouvrir dans le navigateur</span>
+<span class="st">http://localhost:8000</span></code></pre>
+</div>
+
+<div class="footer">
+  Credit Approval System · Machine Learning Pipeline · Random Forest · scikit-learn · FastAPI
+</div>
+
+</div>
+
+</body>
+</html>

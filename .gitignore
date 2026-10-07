@@ -1,0 +1,45 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data
+data/raw/*.csv
+!data/raw/credit_data.csv
+data/processed/
+
+# Models
+models/*.pkl
+
+# Logs
+*.log
+.DS_Store
+
+# Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Misc
+.env
+.env.local
+*.tmp
+.claude/
+chatbot/chroma_db/
